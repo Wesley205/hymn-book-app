@@ -1,15 +1,21 @@
-const { Sequelize } = require('sequelize');
+require('dotenv').config(); // Load environment variables from .env file
 
-// Create a new instance of Sequelize using environment variables
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
+module.exports = {
+  db: {
     host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    // password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     dialect: 'mysql',
-    logging: false,  // Disable logging of SQL queries
-  }
-);
-
-module.exports = { sequelize };
+  },
+  server: {
+    port: process.env.PORT || 3307,
+  },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
+  },
+};

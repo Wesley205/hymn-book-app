@@ -1,5 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/db');  // Import database configuration
+const { HymnModel } = require('../models/appModel');
 
 // Hymn Entity Class
 class Hymn {
@@ -24,7 +23,7 @@ class Hymn {
   static async updateHymn(id, { title, lyrics }) {
     const hymn = await HymnModel.findByPk(id);
     if (!hymn) {
-      throw new Error('Hymn not found');
+      throw new Error("Hymn not found");
     }
     hymn.title = title || hymn.title;
     hymn.lyrics = lyrics || hymn.lyrics;
@@ -50,7 +49,7 @@ class Favorite {
   static async removeFavorite({ userId, hymnId }) {
     const favorite = await FavoriteModel.findOne({ where: { userId, hymnId } });
     if (!favorite) {
-      throw new Error('Favorite not found');
+      throw new Error("Favorite not found");
     }
     await favorite.destroy();
     return favorite;
@@ -63,38 +62,5 @@ class Favorite {
   }
 }
 
-// Sequelize Models
-const HymnModel = sequelize.define('Hymn', {
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lyrics: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-}, {
-  timestamps: true,
-  tableName: 'hymns',
-});
 
-const FavoriteModel = sequelize.define('Favorite', {
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  hymnId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-}, {
-  timestamps: true,
-  tableName: 'favorites',
-});
-
-// Associations between models
-HymnModel.hasMany(FavoriteModel, { foreignKey: 'hymnId' });
-FavoriteModel.belongsTo(HymnModel, { foreignKey: 'hymnId' });
-
-// Exporting entities and models
-module.exports = { Hymn, Favorite, HymnModel, FavoriteModel };
+module.exports = { Hymn, Favorite };
