@@ -1,21 +1,20 @@
-const { Hymn } = require('../models/hymnModel');
-const { Favorite } = require('../models/favoriteModel');
+const appService = require('../services/appService');
 const NotFoundError = require('../utils/NotFoundError');
 
 // Hymn Controller Functions
-const addHymn = async (req, res) => {
-  try {
-    const { title, lyrics } = req.body;
-    const newHymn = await Hymn.create({ title, lyrics });
-    res.status(201).json(newHymn);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+const addHymn = async (req, res, next) => {
+    try {
+      const { title, lyrics } = req.body;
+      const newHymn = await appService.addHymn({ title, lyrics });
+      res.status(201).json(newHymn);
+    } catch (error) {
+      next(error); // Pass to the centralized error handler
+    }
+  };
 
 const getHymnById = async (req, res) => {
   try {
-    const hymn = await Hymn.findByPk(req.params.id);
+    const hymn = await appService.getHymnById(req.params.id);
     if (!hymn) {
       throw new NotFoundError('Hymn not found');
     }
@@ -25,68 +24,56 @@ const getHymnById = async (req, res) => {
   }
 };
 
-const updateHymn = async (req, res) => {
-  try {
-    const hymn = await Hymn.findByPk(req.params.id);
-    if (!hymn) {
-      throw new NotFoundError('Hymn not found');
-    }
-    const { title, lyrics } = req.body;
-    hymn.title = title || hymn.title;
-    hymn.lyrics = lyrics || hymn.lyrics;
-    await hymn.save();
-    res.json(hymn);
-  } catch (error) {
-    res.status(error instanceof NotFoundError ? 404 : 500).json({ message: error.message });
-  }
+const updateHymn = async (req, res, next) => {
+    try {
+        const { title, lyrics } = req.body;
+        const updatedHymn = await appService.updateHymn(req.params.id, { title, lyrics });
+        res.json(updatedHymn);
+      } catch (error) {
+        next(error); // Pass to the centralized error handler
+      }
 };
 
-const getAllHymns = async (req, res) => {
-  try {
-    const hymns = await Hymn.findAll();
-    res.json(hymns);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+const getAllHymns = async (req, res, next) => {
+    try {
+      const hymns = await appService.getAllHymns();
+      res.status(200).json(hymns);
+    } catch (error) {
+      next(error); // Pass error to the centralized error handler
+    }
+  };
 
 // Favorite Controller Functions
-const addFavorite = async (req, res) => {
+const addFavorite = async (req, res, next) => {
   try {
     const { userId, hymnId } = req.body;
-    const favorite = await Favorite.create({ userId, hymnId });
-    res.status(201).json(favorite);
+    const response = await appService.addFavoriteForUser(userId, hymnId);
+    res.status(201).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-const removeFavorite = async (req, res) => {
-  try {
-    const { userId, hymnId } = req.body;
-    const favorite = await Favorite.findOne({ where: { userId, hymnId } });
-    if (!favorite) {
-      throw new NotFoundError('Favorite not found');
+const removeFavorite = async (req, res, next) => {
+    try {
+      const { userId, hymnId } = req.body;
+      const response = await appService.removeFavoriteForUser(userId, hymnId);
+      res.status(200).json(response);
+    } catch (error) {
+      next(error); // Pass to the centralized error handler
     }
-    await favorite.destroy();
-    res.status(204).send();
-  } catch (error) {
-    res.status(error instanceof NotFoundError ? 404 : 500).json({ message: error.message });
-  }
-};
-
-const getUserFavorites = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const favorites = await Favorite.findAll({ where: { userId } });
-    if (!favorites.length) {
-      throw new NotFoundError('No favorites found');
+  };
+  
+// Get all favorites for a user
+const getUserFavorites = async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const favorites = await appService.getUserFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      next(error); // Pass to the centralized error handler
     }
-    res.json(favorites);
-  } catch (error) {
-    res.status(error instanceof NotFoundError ? 404 : 500).json({ message: error.message });
-  }
-};
+  };
 
 module.exports = {
   addHymn,

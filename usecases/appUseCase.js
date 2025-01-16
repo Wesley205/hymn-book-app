@@ -1,66 +1,87 @@
-const { Hymn } = require('../models/appModels');
-const { Favorite } = require('../models/appModels');
+const hymnFavoriteRepository = require('../repositories/hymnFavoriteRepository.js');
 const NotFoundError = require('../utils/NotFoundError');
 
-// Hymn Use Cases
-const addHymn = async ({ title, lyrics }) => {
-  const hymn = await Hymn.create({ title, lyrics });
-  return hymn;
-};
+class HymnFavoriteUseCases {
+  // Hymn Use Cases
 
-const getHymnById = async (id) => {
-  const hymn = await Hymn.findByPk(id);
-  if (!hymn) {
-    throw new NotFoundError('Hymn not found');
+  async addHymn({ title, lyrics }) {
+    try {
+      const hymn = await hymnFavoriteRepository.addHymn({ title, lyrics });
+      return hymn;
+    } catch (error) {
+      throw new Error('Error in addHymn use case: ' + error.message);
+    }
   }
-  return hymn;
-};
 
-const updateHymn = async (id, { title, lyrics }) => {
-  const hymn = await Hymn.findByPk(id);
-  if (!hymn) {
-    throw new NotFoundError('Hymn not found');
+  async getHymnById(id) {
+    try {
+      const hymn = await hymnFavoriteRepository.getHymnById(id);
+      if (!hymn) {
+        throw new NotFoundError('Hymn not found');
+      }
+      return hymn;
+    } catch (error) {
+      throw new Error('Error in getHymnById use case: ' + error.message);
+    }
   }
-  hymn.title = title || hymn.title;
-  hymn.lyrics = lyrics || hymn.lyrics;
-  await hymn.save();
-  return hymn;
-};
 
-const getAllHymns = async () => {
-  const hymns = await Hymn.findAll();
-  return hymns;
-};
-
-// Favorite Use Cases
-const addFavorite = async ({ userId, hymnId }) => {
-  const favorite = await Favorite.create({ userId, hymnId });
-  return favorite;
-};
-
-const removeFavorite = async ({ userId, hymnId }) => {
-  const favorite = await Favorite.findOne({ where: { userId, hymnId } });
-  if (!favorite) {
-    throw new NotFoundError('Favorite not found');
+  async updateHymn(id, { title, lyrics }) {
+    try {
+      const hymn = await hymnFavoriteRepository.getHymnById(id);
+      if (!hymn) {
+        throw new NotFoundError('Hymn not found');
+      }
+      hymn.title = title || hymn.title;
+      hymn.lyrics = lyrics || hymn.lyrics;
+      await hymn.save();
+      return hymn;
+    } catch (error) {
+      throw new Error('Error in updateHymn use case: ' + error.message);
+    }
   }
-  await favorite.destroy();
-  return favorite;
-};
 
-const getUserFavorites = async (userId) => {
-  const favorites = await Favorite.findAll({ where: { userId } });
-  if (favorites.length === 0) {
-    throw new NotFoundError('No favorites found');
+  async getAllHymns(searchQuery = '') {
+    try {
+      const hymns = await hymnFavoriteRepository.getHymns(searchQuery);
+      if (!hymns || hymns.length === 0) {
+        throw new Error('No hymns found');
+      }
+      return hymns;
+    } catch (error) {
+      throw new Error('Error in getAllHymns use case: ' + error.message);
+    }
   }
-  return favorites;
-};
 
-module.exports = {
-  addHymn,
-  getHymnById,
-  updateHymn,
-  getAllHymns,
-  addFavorite,
-  removeFavorite,
-  getUserFavorites,
-};
+  // Favorite Use Cases
+
+  async addFavorite(userId, hymnId) {
+    try {
+      const favorite = await hymnFavoriteRepository.addFavorite(userId, hymnId);
+      return favorite;
+    } catch (error) {
+      throw new Error('Error in addFavorite use case: ' + error.message);
+    }
+  }
+
+  async removeFavorite(userId, hymnId) {
+    try {
+      await hymnFavoriteRepository.removeFavorite(userId, hymnId);
+    } catch (error) {
+      throw new Error('Error in removeFavorite use case: ' + error.message);
+    }
+  }
+
+  async getUserFavorites(userId) {
+    try {
+      const favorites = await hymnFavoriteRepository.getFavoritesByUserId(userId);
+      if (favorites.length === 0) {
+        throw new NotFoundError('No favorites found');
+      }
+      return favorites;
+    } catch (error) {
+      throw new Error('Error in getUserFavorites use case: ' + error.message);
+    }
+  }
+}
+
+module.exports = new HymnFavoriteUseCases();
