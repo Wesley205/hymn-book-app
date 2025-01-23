@@ -2,7 +2,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const router = require("./routes/index"); // Import merged routes
+const hymnRoutes = require('./routes/hymnRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 const sequelize = require("./config/db"); // Database connection
 const redisClient = require("./config/redis"); // Redis connection
 const config = require("./config/config"); // General config file
@@ -19,8 +20,8 @@ app.use(express.json()); // For parsing JSON bodies
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS) for all routes
 
 // Set up the merged routes
-app.use("/api/v1", router); // Use the merged routes for all API requests
-
+app.use('/api/v1', hymnRoutes);
+app.use('/api/v1', favoriteRoutes);1
 
 // Sync database
 async function synchronizeDatabase() {
