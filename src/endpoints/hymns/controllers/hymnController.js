@@ -55,7 +55,7 @@ const getAllHymns = async (req, res, next) => {
 
 const deleteHymn = async (req, res, next) => {
   try {
-    const { id } = req.prams;
+    const { id } = req.params;
     await hymnService.deleteHymn(id);
     res.status(200).json({message: "Hymn deleted successfully" });
   } catch (error) {
