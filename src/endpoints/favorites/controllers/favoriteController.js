@@ -1,5 +1,5 @@
 const favoriteService = require("../services/favoriteService.js");
-const { NotFoundError, ValidationError } = require ('../utilis/error/AppError');
+const { NotFoundError, ValidationError } = require ('../../../utilis/error/AppError.js');
 
 //add favorite for a user
 

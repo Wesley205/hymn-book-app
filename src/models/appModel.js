@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db"); // Import database configuration
 
 // Hymn Model
-const Hymn = sequelize.define(
+const HymnModel = sequelize.define(
   "Hymn",
   {
     title: {
@@ -21,7 +21,7 @@ const Hymn = sequelize.define(
 );
 
 // Favorite Model
-const Favorite = sequelize.define(
+const FavoriteModel = sequelize.define(
   "Favorite",
   { 
     userId: {
@@ -40,7 +40,7 @@ const Favorite = sequelize.define(
 );
 
 // Define Associations
-Hymn.hasMany(Favorite, { foreignKey: "hymnId" });
-Favorite.belongsTo(Hymn, { foreignKey: "hymnId" });
+HymnModel.hasMany(FavoriteModel, { foreignKey: "hymnId" });
+FavoriteModel.belongsTo(HymnModel, { foreignKey: "hymnId" });
 
-module.exports = { Hymn, Favorite };
+module.exports = { HymnModel, FavoriteModel };

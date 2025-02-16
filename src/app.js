@@ -2,8 +2,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const hymnRoutes = require('./routes/hymnRoutes');
-const favoriteRoutes = require('./routes/favoriteRoutes');
+const hymnRoutes = require('../src/endpoints/hymns/routes/hymnRoutes');
+const favoriteRoutes = require('../src/endpoints/favorites/routes/favoriteRoutes');
 const sequelize = require("./config/db"); // Database connection
 const redisClient = require("./config/redis"); // Redis connection
 const config = require("./config/config"); // General config file
