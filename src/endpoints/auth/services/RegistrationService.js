@@ -4,6 +4,7 @@ import JwtTokenProvider from './JwtTokenProvider.js';
 
 class RegistrationService {
   constructor() {
+    this.tokenProvider = new JwtTokenProvider()
     this.firebaseAuthService = new FirebaseAuthService();
     this.userDatabase = this.firebaseAuthService.userDatabase;
   }

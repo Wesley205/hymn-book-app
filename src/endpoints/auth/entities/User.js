@@ -10,9 +10,9 @@ User.init(
       defaultValue: DataTypes.UUIDV4, // Generates a unique UUID
       primaryKey: true,
     },
-    key: {
+    token: {
       type: DataTypes.STRING,
-      allowNull: true, // Can be used for API keys or verification keys
+      allowNull: true, // Stores JWT token after login
     },
     email: {
       type: DataTypes.STRING,
@@ -25,21 +25,6 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: "",
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: "",
-    },
-    contact: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: "",
     },
     isAdmin: {
       type: DataTypes.BOOLEAN,

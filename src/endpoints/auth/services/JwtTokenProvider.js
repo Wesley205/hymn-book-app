@@ -14,7 +14,7 @@ class JwtTokenProvider {
     const now = new Date();
     const expiryDate = `${this.jwtExpirationInMs}m`;
     try {
-      return sign({ user }, this.jwtSecret, { expiresIn: expiryDate });
+      return sign({ id: user.id, email: user.email, isAdmin: user.isAdmin }, this.jwtSecret, { expiresIn: this.jwtExpirationInMs });
     } catch (error) {
       console.error('Error generating token:', error);
       return null;
