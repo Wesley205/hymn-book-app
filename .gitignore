@@ -36,3 +36,9 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+
+# Ignore service account keys and credentials
+src/assets/hymn-book-75cd1-firebase-adminsdk-fbsvc-1149e3710c.json
+
+# You can also use patterns to ignore all similar files
+*-firebase-adminsdk-*.json
