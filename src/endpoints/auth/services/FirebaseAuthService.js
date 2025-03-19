@@ -1,5 +1,6 @@
 import FirebaseService from "../../../config/utils/FirebaseService.js";
 import pkg from "bcryptjs";
+import admin from "firebase-admin";
 import UserDatabase from "../database/Userdatabase.js";
 
 const { compareSync, genSaltSync, hashSync } = pkg;
@@ -8,16 +9,16 @@ class FirebaseAuthService {
   constructor() {
     this.auth = new FirebaseService().auth;
     this.userDatabase = new UserDatabase();
+    this.auth = admin.auth();
   }
 
-  //Create a new user in Firebase and store details in MySQL
+  //Create a new user in Firebase 
 
   async createUserWithEmailAndPassword(email, password, isAdmin = false) {
     try {
-      const hashedPassword = this.hashPassword(password);
       const userRecord = await this.auth.createUser({
         email,
-        password: hashedPassword,
+        password, // Firebase handles hashing internally
         emailVerified: false,
       });
 
@@ -66,42 +67,30 @@ class FirebaseAuthService {
 
   async sendVerificationEmail(email) {
     try {
-      const link = await this.auth.generateEmailVerificationLink(email);
-      return link;
+      return await this.auth.generateEmailVerificationLink(email);
     } catch (error) {
       console.error("Error sending verification email:", error);
       throw error;
     }
   }
 
-  // Authenticate user with email & password
+  //update password
 
-  async verifyPassword(email, password) {
-    const user = await this.userDatabase.findByEmail(email);
-    if (!user || !user.password) return false;
-    return this.isPasswordCorrect(password, user.password);
-  }
-
-  // Check if password matches hashed password
-
-  isPasswordCorrect(password, hashedPassword) {
+  async updatePassword(email, newPassword) {
     try {
-      return compareSync(password, hashedPassword);
+      const userRecord = await this.auth.getUserByEmail(email);
+      if (!userRecord) {
+        console.error(`User with email ${email} not found in Firebase.`);
+        return false;
+      }
+
+      await this.auth.updateUser(userRecord.uid, { password: newPassword });
+
+      console.log(`Password updated successfully for ${email}`);
+      return true;
     } catch (error) {
-      console.error("Error verifying password:", error);
+      console.error(`Error updating password for ${email}:`, error.message);
       return false;
-    }
-  }
-
-  // Hash a password before storing it
-
-  hashPassword(password) {
-    try {
-      const salt = genSaltSync(10);
-      return hashSync(password, salt);
-    } catch (error) {
-      console.error("Error hashing password:", error);
-      return null;
     }
   }
 }
